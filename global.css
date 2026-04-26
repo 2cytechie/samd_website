@@ -1,0 +1,121 @@
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  overflow-x: hidden;
+}
+
+/* 创意艺术风格配色方案 */
+:root {
+  /* 主色调 - 艺术渐变 */
+  --primary-purple: #8B5CF6;
+  --primary-pink: #EC4899;
+  --primary-orange: #F97316;
+  --primary-blue: #3B82F6;
+  
+  /* 背景色 */
+  --bg-primary: #0F0F1A;
+  --bg-secondary: #1A1A2E;
+  --bg-card: rgba(26, 26, 46, 0.8);
+  
+  /* 文字色 */
+  --text-primary: #F8F9FA;
+  --text-secondary: #ADB5BD;
+  --text-muted: #6C757D;
+  
+  /* 渐变 */
+  --gradient-1: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #F97316 100%);
+  --gradient-2: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  --gradient-3: linear-gradient(135deg, #EC4899 0%, #F97316 100%);
+  
+  /* 阴影 */
+  --shadow-light: 0 4px 12px rgba(139, 92, 246, 0.15);
+  --shadow-medium: 0 8px 24px rgba(139, 92, 246, 0.25);
+  --shadow-heavy: 0 12px 48px rgba(139, 92, 246, 0.35);
+  
+  /* 间距 */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* 圆角 */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+  
+  /* 过渡 */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* 排版 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  background: var(--gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--primary-purple);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-pink);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  :root {
+    --spacing-xl: 1.5rem;
+    --spacing-2xl: 2rem;
+    --spacing-3xl: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+}
