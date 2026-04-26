@@ -138,6 +138,8 @@ function WorkDetail() {
             src={work.detailImage} 
             alt={work.title} 
             className="work-detail-image"
+            onClick={handleExperience}
+            style={{ cursor: 'pointer' }}
           />
         </div>
 
@@ -157,13 +159,6 @@ function WorkDetail() {
               ))}
             </div>
           </section>
-
-          <div className="work-actions">
-            <button onClick={handleExperience} className="btn-experience">
-              <span className="btn-icon">🚀</span>
-              体验作品
-            </button>
-          </div>
         </div>
 
         {/* 评论和评分部分 */}

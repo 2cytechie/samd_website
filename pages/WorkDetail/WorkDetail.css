@@ -205,14 +205,6 @@
   box-shadow: 0 10px 25px rgba(196, 77, 255, 0.2);
 }
 
-.work-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
 .btn-experience {
   display: inline-flex;
   align-items: center;
@@ -253,11 +245,6 @@
 
 .btn-experience:active {
   transform: translateY(-1px) scale(1.02);
-}
-
-.btn-icon {
-  font-size: 1.4rem;
-  animation: bounce 2s infinite;
 }
 
 @keyframes bounce {

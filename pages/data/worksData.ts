@@ -18,4 +18,13 @@ export const worksData: Work[] = [
     workUrl: '/works/racing-game/racing-game.html',
     tags: ['Canvas', 'JavaScript', '游戏开发', '双人游戏'],
   },
+  {
+    id: '2',
+    title: '打砖块 2.0',
+    description: '霓虹风格的经典打砖块游戏！具有多种砖块类型（普通、多重打击、爆炸）、炫酷粒子特效、多关卡设计。\n使用←→方向键或鼠标控制挡板，击碎所有砖块通关！',
+    thumbnail: '/works/breakout-game/breakout-game-thumbnail.png',
+    detailImage: '/works/breakout-game/breakout-game-thumbnail.png',
+    workUrl: '/works/breakout-game/breakout-game.html',
+    tags: ['Canvas', 'JavaScript', '游戏开发', '经典游戏'],
+  },
 ];

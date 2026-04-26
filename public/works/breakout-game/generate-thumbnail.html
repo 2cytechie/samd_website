@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成缩略图</title>
+    <style>
+        body {
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        canvas {
+            border: 2px solid #333;
+            box-shadow: 0 0 40px rgba(100, 50, 255, 0.5);
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #5533ff, #aa44ff);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            box-shadow: 0 0 20px rgba(100, 50, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="thumbnail" width="800" height="600"></canvas>
+    <button onclick="saveThumbnail()">保存为 PNG</button>
+    
+    <script>
+        const canvas = document.getElementById('thumbnail');
+        const ctx = canvas.getContext('2d');
+        
+        // 背景
+        ctx.fillStyle = '#0a0a0f';
+        ctx.fillRect(0, 0, 800, 600);
+        
+        // 霓虹发光效果
+        function drawNeonRect(x, y, w, h, color) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.9;
+            ctx.fillRect(x, y, w, h);
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 1;
+        }
+        
+        // 画砖块
+        const colors = ['#ff3355', '#ffcc00', '#44ff88', '#00ccff', '#7744ff', '#ff44cc'];
+        const brickWidth = 70;
+        const brickHeight = 25;
+        const brickPadding = 10;
+        const brickOffsetTop = 60;
+        const brickOffsetLeft = 30;
+        
+        for (let row = 0; row < 5; row++) {
+            for (let col = 0; col < 10; col++) {
+                const brickX = col * (brickWidth + brickPadding) + brickOffsetLeft;
+                const brickY = row * (brickHeight + brickPadding) + brickOffsetTop;
+                drawNeonRect(brickX, brickY, brickWidth, brickHeight, colors[row % colors.length]);
+            }
+        }
+        
+        // 画挡板
+        ctx.shadowColor = '#00ccff';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#00ccff';
+        ctx.fillRect(325, 520, 150, 20);
+        ctx.shadowBlur = 0;
+        
+        // 画球
+        ctx.beginPath();
+        ctx.arc(400, 450, 12, 0, Math.PI * 2);
+        ctx.shadowColor = '#ffcc00';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#ffcc00';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // 画标题
+        ctx.font = 'bold 48px Impact, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        const gradient = ctx.createLinearGradient(200, 0, 600, 0);
+        gradient.addColorStop(0, '#fff');
+        gradient.addColorStop(0.5, '#aaf');
+        gradient.addColorStop(1, '#f8f');
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = 'rgba(100, 50, 255, 0.8)';
+        ctx.shadowBlur = 15;
+        ctx.fillText('NEON BREAKOUT', 400, 50);
+        ctx.shadowBlur = 0;
+        
+        // 保存为 PNG
+        function saveThumbnail() {
+            const link = document.createElement('a');
+            link.download = 'breakout-game-thumbnail.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
