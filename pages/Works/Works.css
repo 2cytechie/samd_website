@@ -4,8 +4,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 2rem;
+  padding-top: 6rem;
 }
 
 .works-content {
@@ -58,6 +58,7 @@
   height: 200px;
   object-fit: cover;
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .work-card:hover .work-thumbnail {

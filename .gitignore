@@ -38,3 +38,4 @@ dist-ssr
 
 # Uploads
 uploads/
+.trae/

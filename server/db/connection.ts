@@ -10,7 +10,7 @@ export const pool = mysql.createPool({
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'samd_db',
+  database: process.env.DB_NAME || 'website',
   multipleStatements: true,
   waitForConnections: true,
   connectionLimit: 10,
@@ -18,12 +18,10 @@ export const pool = mysql.createPool({
 });
 
 export async function initializeDatabase() {
-  const dbName = process.env.DB_NAME || 'samd_db';
+  const dbName = process.env.DB_NAME || 'website';
   const conn = await pool.getConnection();
   try {
-    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
-    await conn.query(`USE \`${dbName}\``);
-    console.log(`✅ 数据库 ${dbName} 初始化完成`);
+    console.log(`✅ 数据库 ${dbName} 已连接`);
   } finally {
     conn.release();
   }
