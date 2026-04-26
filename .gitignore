@@ -32,7 +32,10 @@ dist-ssr
 *.sw?
 
 # Environment variables
+.env
 .env.server
+.env.server.backup
+.env.server.prod
 .env.local
 .env.*.local
 
