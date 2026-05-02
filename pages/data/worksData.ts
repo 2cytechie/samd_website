@@ -27,4 +27,13 @@ export const worksData: Work[] = [
     workUrl: '/works/breakout-game/breakout-game.html',
     tags: ['Canvas', 'JavaScript', '游戏开发', '经典游戏'],
   },
+  {
+    id: '3',
+    title: '霓虹画板',
+    description: '创作并分享你的霓虹画作！支持多种画笔工具、霓虹特效、无限撤销，以及完整的社区分享和点赞功能。\n进入作品后先看到社区展示，点击创作后开始绘画！',
+    thumbnail: '/works/breakout-game/breakout-game-thumbnail.png',
+    detailImage: '/works/breakout-game/breakout-game.html',
+    workUrl: '/works/artboard/artboard.html',
+    tags: ['Canvas', 'JavaScript', '创意工具', '生成艺术'],
+  },
 ];
