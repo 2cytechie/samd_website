@@ -24,8 +24,16 @@ app.get('/api/health', (_req, res) => {
 
 async function start() {
   try {
-    await initializeDatabase();
-    await initializeRedis();
+    try {
+      await initializeDatabase();
+    } catch (e) {
+      console.warn('⚠️ 数据库连接失败，使用内存存储');
+    }
+    try {
+      await initializeRedis();
+    } catch (e) {
+      console.warn('⚠️ Redis连接失败，不使用缓存');
+    }
     app.listen(PORT, () => {
       console.log(`🚀 后端服务运行在 http://localhost:${PORT}`);
       console.log(`   API 端点:`);

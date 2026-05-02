@@ -1,7 +1,8 @@
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { dirname, join, readFileSync } from 'path';
+import { dirname, join } from 'path';
+import fs from 'fs';
 
 dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../.env.server') });
 
@@ -25,7 +26,7 @@ export async function initializeDatabase() {
     
     // 初始化表结构
     const initSqlPath = join(dirname(fileURLToPath(import.meta.url)), 'init.sql');
-    const initSql = readFileSync(initSqlPath, 'utf-8');
+    const initSql = fs.readFileSync(initSqlPath, 'utf-8');
     await conn.query(initSql);
     console.log('✅ 数据库表已初始化');
   } catch (error) {
