@@ -27,4 +27,13 @@ export const worksData: Work[] = [
     workUrl: '/works/breakout-game/breakout-game.html',
     tags: ['Canvas', 'JavaScript', '游戏开发', '经典游戏'],
   },
+  {
+    id: '3',
+    title: '跳一跳',
+    description: '复刻经典跳一跳游戏！按住蓄力，松开跳跃，完美着陆获得更高分数，挑战你的节奏感和判断力！\n连续完美着陆触发连击系统，获得倍数加分，不断刷新你的最高分！',
+    thumbnail: '/works/jump-game/jump-game-thumbnail.png',
+    detailImage: '/works/jump-game/jump-game-thumbnail.png',
+    workUrl: '/works/jump-game/jump-game.html',
+    tags: ['Canvas', 'JavaScript', '游戏开发', '休闲游戏'],
+  },
 ];
