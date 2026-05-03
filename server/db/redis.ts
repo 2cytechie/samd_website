@@ -22,8 +22,7 @@ export async function initializeRedis() {
         return null;
       }
       return Math.min(times * 100, 1000);
-    },
-    lazyConnect: true
+    }
   });
 
   let firstConnection = true;
@@ -38,6 +37,12 @@ export async function initializeRedis() {
       firstConnection = false;
     }
   });
+
+  try {
+    await redis.connect();
+  } catch (e) {
+    console.warn('⚠️ Redis 初始连接失败');
+  }
 }
 
 export function getRedis() {
