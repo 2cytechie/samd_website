@@ -16,18 +16,27 @@ export async function initializeRedis() {
     host: redisHost,
     port: redisPort,
     password: redisPassword,
+    maxRetriesPerRequest: 1,
     retryStrategy: (times) => {
-      const delay = Math.min(times * 50, 2000);
-      return delay;
-    }
+      if (times > 3) {
+        return null;
+      }
+      return Math.min(times * 100, 1000);
+    },
+    lazyConnect: true
   });
+
+  let firstConnection = true;
 
   redis.on('connect', () => {
     console.log('✅ Redis 连接成功');
   });
 
   redis.on('error', (err) => {
-    console.error('❌ Redis 连接错误:', err);
+    if (firstConnection) {
+      console.warn('⚠️ Redis 连接失败，将不使用缓存:', err.message);
+      firstConnection = false;
+    }
   });
 }
 
