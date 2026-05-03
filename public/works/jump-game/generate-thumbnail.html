@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成缩略图</title>
+    <style>
+        body {
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        canvas {
+            border: 2px solid #333;
+            box-shadow: 0 0 40px rgba(68, 255, 136, 0.5);
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #44ff88, #00ccff);
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            box-shadow: 0 0 20px rgba(68, 255, 136, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="thumbnail" width="800" height="600"></canvas>
+    <button onclick="saveThumbnail()">保存为 PNG</button>
+    
+    <script>
+        const canvas = document.getElementById('thumbnail');
+        const ctx = canvas.getContext('2d');
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        const gradient = ctx.createLinearGradient(0, 0, 0, 600);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#0a0a0f');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 800, 600);
+        
+        function drawPlatform(x, y, width, height, color) {
+            ctx.save();
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(x + 5, y + height / 2 + 5, width / 2, height / 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = color;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 20;
+            
+            ctx.beginPath();
+            ctx.moveTo(x - width / 2, y);
+            ctx.lineTo(x - width / 2, y + height / 2);
+            ctx.quadraticCurveTo(x - width / 2, y + height, x, y + height);
+            ctx.quadraticCurveTo(x + width / 2, y + height, x + width / 2, y + height / 2);
+            ctx.lineTo(x + width / 2, y);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath();
+            ctx.ellipse(x, y, width / 2, height / 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(x, y, width / 2, height / 4, 0, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        function drawPlayer(x, y, squash = 1, stretch = 1) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(stretch, squash);
+            
+            const playerWidth = 30;
+            const playerHeight = 40;
+            
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath();
+            ctx.ellipse(3, playerHeight / 2 + 5, playerWidth / 3, playerHeight / 6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#4488ff';
+            ctx.shadowColor = '#4488ff';
+            ctx.shadowBlur = 15;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, -playerHeight / 2);
+            ctx.lineTo(playerWidth / 4, -playerHeight / 4);
+            ctx.lineTo(playerWidth / 2, playerHeight / 4);
+            ctx.lineTo(playerWidth / 4, playerHeight / 2);
+            ctx.lineTo(-playerWidth / 4, playerHeight / 2);
+            ctx.lineTo(-playerWidth / 2, playerHeight / 4);
+            ctx.lineTo(-playerWidth / 4, -playerHeight / 4);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.beginPath();
+            ctx.moveTo(0, -playerHeight / 2);
+            ctx.lineTo(-playerWidth / 4, -playerHeight / 4);
+            ctx.lineTo(-playerWidth / 2, playerHeight / 4);
+            ctx.lineTo(-playerWidth / 4, playerHeight / 2);
+            ctx.lineTo(0, playerHeight / 4);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(-5, -5, 5, 0, Math.PI * 2);
+            ctx.arc(5, -5, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-5, -4, 2, 0, Math.PI * 2);
+            ctx.arc(5, -4, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        drawPlatform(centerX - 200, centerY, 120, 80, '#44ff88');
+        drawPlatform(centerX, centerY, 80, 70, '#4ecdc4');
+        drawPlatform(centerX + 200, centerY, 100, 75, '#ff6b6b');
+        
+        drawPlayer(centerX - 200, centerY - 50, 0.8, 1.2);
+        
+        ctx.font = 'bold 52px Impact, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        const textGradient = ctx.createLinearGradient(200, 0, 600, 0);
+        textGradient.addColorStop(0, '#fff');
+        textGradient.addColorStop(0.5, '#aaffff');
+        textGradient.addColorStop(1, '#ffaa88');
+        ctx.fillStyle = textGradient;
+        ctx.shadowColor = 'rgba(100, 200, 255, 0.8)';
+        ctx.shadowBlur = 20;
+        ctx.fillText('跳 一 跳', centerX, 80);
+        ctx.shadowBlur = 0;
+        
+        ctx.font = '16px "Courier New", monospace';
+        ctx.fillStyle = '#88ccff';
+        ctx.letterSpacing = '0.4em';
+        ctx.fillText('按住蓄力 · 松开跳跃', centerX, 120);
+        
+        function saveThumbnail() {
+            const link = document.createElement('a');
+            link.download = 'jump-game-thumbnail.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

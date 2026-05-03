@@ -29,6 +29,15 @@ export const worksData: Work[] = [
   },
   {
     id: '3',
+    title: '跳一跳',
+    description: '复刻经典跳一跳游戏！按住蓄力，松开跳跃，完美着陆获得更高分数，挑战你的节奏感和判断力！\n连续完美着陆触发连击系统，获得倍数加分，不断刷新你的最高分！',
+    thumbnail: '/works/jump-game/jump-game-thumbnail.png',
+    detailImage: '/works/jump-game/jump-game-thumbnail.png',
+    workUrl: '/works/jump-game/jump-game.html',
+    tags: ['Canvas', 'JavaScript', '游戏开发', '休闲游戏'],
+  },
+  {
+    id: '4',
     title: '2D 射击游戏',
     description: '刺激的 2D 射击游戏，包含训练场和无尽对战两种模式！支持鼠标/键盘和触屏控制，长按连发机制，弹药系统，还有三种难度可选！\n训练场：无限弹药，练习射击靶子；无尽对战：击杀敌人获取弹药，存活越久越厉害！',
     thumbnail: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=2D%20top-down%20shooter%20game%20thumbnail%2C%20dark%20background%2C%20blue%20player%20circle%2C%20red%20targets%2C%20game%20style%2C%20vector%20art%2C%20clean%20design&image_size=landscape_16_9',
@@ -37,7 +46,7 @@ export const worksData: Work[] = [
     tags: ['Canvas', 'JavaScript', '游戏开发', '射击游戏', '移动端支持'],
   },
   {
-    id: '4',
+    id: '5',
     title: 'MC 超长跑酷',
     description: '基于 Phaser3 引擎制作的我的世界风格跑酷游戏！包含三种难度模式（简单、中等、困难），还有自定义地图编辑器！\n使用 WASD 控制，W/空格跳跃，在超长地图中奔跑跳跃，到达终点旗帜即可获胜！',
     thumbnail: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minecraft%20parkour%20game%20thumbnail%2C%20sky%20background%2C%20grass%20blocks%2C%20wooden%20platforms%2C%20pixel%20art%20style%2C%20clean%20design&image_size=landscape_16_9',
