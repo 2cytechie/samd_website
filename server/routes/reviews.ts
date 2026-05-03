@@ -106,7 +106,7 @@ router.get('/:workId', async (req: Request, res: Response) => {
         stats: {
           avgRating: stats.avgRating ? parseFloat(stats.avgRating).toFixed(1) : '0',
           totalCount: stats.totalCount,
-          reviewCount: reviews[0].totalCount || 0
+          reviewCount: Array.isArray(reviews) ? reviews.length : 0
         }
       };
 

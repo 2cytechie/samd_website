@@ -38,10 +38,12 @@ function WorkDetail() {
       if (!response.ok) throw new Error('获取评论失败');
       const data = await response.json();
       setReviews(data.reviews || []);
-      setStats(data.stats || null);
+      setStats(data.stats || { avgRating: '0', totalCount: 0, reviewCount: 0 });
     } catch (err) {
       console.error(err);
-      setError('获取评论失败');
+      setReviews([]);
+      setStats({ avgRating: '0', totalCount: 0, reviewCount: 0 });
+      // 即使获取失败也不显示错误消息，只显示"暂无评论"
     } finally {
       setLoading(false);
     }
