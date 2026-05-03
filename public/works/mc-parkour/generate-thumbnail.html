@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成缩略图</title>
+    <style>
+        body {
+            background: #222;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+        canvas {
+            border: 2px solid #333;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="thumbnail" width="800" height="600"></canvas>
+    <button onclick="saveThumbnail()">保存为 PNG</button>
+    
+    <script>
+        const canvas = document.getElementById('thumbnail');
+        const ctx = canvas.getContext('2d');
+        
+        // 天空背景
+        const skyGradient = ctx.createLinearGradient(0, 0, 0, 600);
+        skyGradient.addColorStop(0, '#87CEEB');
+        skyGradient.addColorStop(1, '#E0F6FF');
+        ctx.fillStyle = skyGradient;
+        ctx.fillRect(0, 0, 800, 600);
+        
+        // 地面
+        ctx.fillStyle = '#60A917';
+        ctx.fillRect(0, 550, 800, 50);
+        
+        // 泥土层
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(0, 570, 800, 30);
+        
+        // 画一些平台
+        const platforms = [
+            { x: 150, y: 480, w: 120, color: '#60A917' },
+            { x: 320, y: 420, w: 100, color: '#A0522D' },
+            { x: 480, y: 380, w: 90, color: '#888888' },
+            { x: 620, y: 450, w: 110, color: '#F4D03F' }
+        ];
+        
+        platforms.forEach(p => {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.w, 32);
+        });
+        
+        // 画一个简单的玩家（像素风格）
+        const playerX = 80;
+        const playerY = 522;
+        const playerSize = 28;
+        
+        ctx.fillStyle = '#4169E1'; // 身体
+        ctx.fillRect(playerX, playerY, playerSize, playerSize);
+        
+        ctx.fillStyle = '#FFDAB9'; // 头
+        ctx.fillRect(playerX + 4, playerY - 12, 20, 16);
+        
+        // 终点旗帜
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(720, 454, 8, 96);
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(728, 454, 40, 32);
+        
+        // 画标题
+        ctx.font = 'bold 42px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#333';
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 8;
+        ctx.fillText('MC 超长跑酷', 400, 60);
+        ctx.shadowBlur = 0;
+        
+        // 保存为 PNG
+        function saveThumbnail() {
+            const link = document.createElement('a');
+            link.download = 'mc-parkour-thumbnail.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

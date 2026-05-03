@@ -12,6 +12,7 @@ function Works() {
             <div key={work.id} className="work-card">
               <Link to={`/works/${work.id}`}>
                 <img src={work.thumbnail} alt={work.title} className="work-thumbnail" />
+                <div className="work-title-text">{work.title}</div>
               </Link>
             </div>
           ))}

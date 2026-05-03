@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>2D射击｜长按连发+弹药机制</title>
+<style>
+* {margin:0;padding:0;box-sizing:border-box;user-select:none;}
+body {background:#222;overflow:hidden;}
+canvas {display:block;}
+#menu{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,0.95);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    z-index:999;color:#fff;
+}
+.hide{display:none !important;}
+button{
+    border:none;border-radius:8px;
+    font-size:16px;cursor:pointer;
+}
+.btn-blue{background:#2196F3;color:#fff;width:200px;padding:12px;margin:8px;}
+.btn-red{background:#f44336;color:#fff;width:200px;padding:12px;margin:8px;}
+.btn-orange{background:#ff9800;color:#fff;width:200px;padding:12px;margin:8px;}
+.quit-btn{
+    position:fixed;top:15px;right:15px;
+    padding:6px 12px;background:#666;color:#fff;
+    z-index:20;border-radius:4px;
+}
+.ui{position:fixed;top:12px;left:12px;color:#fff;z-index:10;}
+.time{position:fixed;top:45px;right:15px;color:#ffd700;z-index:10;}
+.joy{position:fixed;left:15px;bottom:15px;width:100px;height:100px;background:rgba(255,255,255,0.15);border-radius:50%;z-index:10;}
+.joy-in{width:40px;height:40px;background:rgba(255,255,255,0.3);border-radius:50%;margin:30px;}
+.fire-btn{position:fixed;right:20px;bottom:20px;width:70px;height:70px;border-radius:50%;background:#b71c1c;color:#fff;border:0;z-index:10;}
+</style>
+</head>
+<body>
+
+<div id="menu">
+    <h1>2D射击游戏</h1>
+    <p style="margin:10px 0;">最高纪录：<span id="highRec">0</span> 秒</p>
+    <button class="btn-blue" onclick="startTrain()">🎯 训练场</button>
+    <button class="btn-red" onclick="showDiff()">💀 无尽对战</button>
+    <div id="diffBox" class="hide">
+        <p style="margin:10px 0;">选择难度</p>
+        <button class="btn-orange" onclick="startEndless(1)">简单(1血)</button>
+        <button class="btn-orange" onclick="startEndless(2)">中等(2血)</button>
+        <button class="btn-orange" onclick="startEndless(3)">困难(3血)</button>
+    </div>
+</div>
+
+<button class="quit-btn hide" id="trainQuit">退出训练场</button>
+<canvas id="c"></canvas>
+<div class="ui">血量：<span id="hpText">100</span>｜弹药：<span id="ammoText">0</span></div>
+<div class="time">时间：<span id="timeText">0</span></div>
+
+<div class="joy" id="joy"><div class="joy-in" id="joyInner"></div></div>
+<button class="fire-btn" id="fireMobile">射击</button>
+
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+c.width = innerWidth;
+c.height = innerHeight;
+
+let gameState = "menu";
+let enemyMaxHp = 1;
+let player = {};
+let bullets = [];
+let enemies = [];
+let targets = [];
+let gameTime = 0;
+let timer = null;
+let joyX = 0, joyY = 0;
+const highKey = "shoot2dRecord";
+let highRecord = +localStorage.getItem(highKey) || 0;
+document.getElementById("highRec").innerText = highRecord;
+
+// 连发变量
+let isFiring = false;
+let fireInterval = null;
+
+const menu = document.getElementById("menu");
+const diffBox = document.getElementById("diffBox");
+const trainQuit = document.getElementById("trainQuit");
+const ammoText = document.getElementById("ammoText");
+const fireBtn = document.getElementById("fireMobile");
+
+function initPlayer(){
+    player = {
+        x: c.width / 2,
+        y: c.height / 2,
+        size: 18,
+        speed: 4,
+        hp: 100,
+        ammo: 0,
+        angle: 0
+    };
+    bullets = [];
+    enemies = [];
+    targets = [];
+    gameTime = 0;
+}
+
+function spawnTargets(){
+    targets = [];
+    for(let i=0;i<6;i++){
+        targets.push({
+            x:80+Math.random()*(c.width-160),
+            y:80+Math.random()*(c.height-160),
+            size:22
+        });
+    }
+}
+
+function startTrain(){
+    gameState = "train";
+    menu.classList.add("hide");
+    trainQuit.classList.remove("hide");
+    initPlayer();
+    player.ammo = 999999;
+    spawnTargets();
+    updateUI();
+    startTimer();
+}
+
+trainQuit.onclick = function(){
+    stopAutoFire();
+    gameState = "menu";
+    trainQuit.classList.add("hide");
+    menu.classList.remove("hide");
+    stopTimer();
+};
+
+function showDiff(){
+    diffBox.classList.remove("hide");
+}
+
+function startEndless(hp){
+    enemyMaxHp = hp;
+    gameState = "endless";
+    menu.classList.add("hide");
+    trainQuit.classList.add("hide");
+    initPlayer();
+    player.ammo = 100;
+    updateUI();
+    startTimer();
+}
+
+function startTimer(){
+    clearInterval(timer);
+    timer = setInterval(()=>{
+        if(gameState==="endless") gameTime++;
+        document.getElementById("timeText").innerText = gameTime;
+    },1000);
+}
+function stopTimer(){ clearInterval(timer); }
+
+function spawnEnemy(){
+    if(gameState!=="endless") return;
+    let side=Math.floor(Math.random()*4);
+    let x=0,y=0;
+    if(side===0)x=0,y=Math.random()*c.height;
+    if(side===1)x=c.width,y=Math.random()*c.height;
+    if(side===2)x=Math.random()*c.width,y=0;
+    if(side===3)x=Math.random()*c.width,y=c.height;
+    enemies.push({x,y,size:16,speed:1.2,hp:enemyMaxHp});
+}
+setInterval(spawnEnemy,2200);
+
+const key={};
+window.onkeydown=e=>key[e.key]=1;
+window.onkeyup=e=>key[e.key]=0;
+
+// 鼠标长按连发
+c.onmousedown = ()=>{
+    isFiring = true;
+    shootOnce();
+    fireInterval = setInterval(shootOnce, 120);
+};
+c.onmouseup = ()=> stopAutoFire();
+c.onmouseleave = ()=> stopAutoFire();
+
+// 手机长按连发
+fireBtn.addEventListener("touchstart",(e)=>{
+    e.preventDefault();
+    isFiring = true;
+    shootOnce();
+    fireInterval = setInterval(shootOnce, 120);
+});
+fireBtn.addEventListener("touchend",()=> stopAutoFire());
+fireBtn.addEventListener("touchcancel",()=> stopAutoFire());
+
+c.onmousemove=e=>{
+    let r=c.getBoundingClientRect();
+    let mx=e.clientX-r.left;
+    let my=e.clientY-r.top;
+    player.angle=Math.atan2(my-player.y,mx-player.x);
+};
+
+const joy=document.getElementById("joy");
+const joyInner=document.getElementById("joyInner");
+joy.ontouchmove=e=>{
+    let t=e.touches[0];
+    let r=joy.getBoundingClientRect();
+    joyX=t.clientX-r.left-50;
+    joyY=t.clientY-r.top-50;
+    let d=Math.hypot(joyX,joyY);
+    if(d>40){joyX/=d;joyY/=d;joyX*=40;joyY*=40;}
+    joyInner.style.transform=`translate(${joyX}px,${joyY}px)`;
+};
+joy.ontouchend=()=>{joyX=0;joyY=0;joyInner.style.transform="";};
+
+// 单次射击
+function shootOnce(){
+    if(gameState !== "train" && player.ammo <= 0) {
+        stopAutoFire();
+        return;
+    }
+    if(gameState !== "train") player.ammo--;
+    bullets.push({
+        x:player.x,y:player.y,
+        vx:Math.cos(player.angle)*8,
+        vy:Math.sin(player.angle)*8,
+        size:4
+    });
+    updateUI();
+}
+// 停止连发
+function stopAutoFire(){
+    isFiring = false;
+    clearInterval(fireInterval);
+}
+
+function updateUI(){
+    document.getElementById("hpText").innerText=Math.floor(player.hp);
+    ammoText.innerText=player.ammo;
+}
+
+function gameOver(){
+    stopAutoFire();
+    stopTimer();
+    gameState="menu";
+    if(gameTime>highRecord){
+        highRecord=gameTime;
+        localStorage.setItem(highKey,highRecord);
+        document.getElementById("highRec").innerText=highRecord;
+    }
+    menu.classList.remove("hide");
+    diffBox.classList.add("hide");
+}
+
+function loop(){
+    requestAnimationFrame(loop);
+    if(gameState==="menu")return;
+
+    let dx=0,dy=0;
+    if(key.w)dy--;if(key.s)dy++;if(key.a)dx--;if(key.d)dx++;
+    dx+=joyX/40;dy+=joyY/40;
+    if(dx||dy){
+        let len=Math.hypot(dx,dy);
+        player.x+=dx/len*player.speed;
+        player.y+=dy/len*player.speed;
+    }
+    player.x=Math.max(20,Math.min(c.width-20,player.x));
+    player.y=Math.max(20,Math.min(c.height-20,player.y));
+
+    bullets=bullets.filter(b=>{
+        b.x+=b.vx;b.y+=b.vy;
+        return b.x>0&&b.x<c.width&&b.y>0&&b.y<c.height;
+    });
+
+    if(gameState==="train"){
+        bullets.forEach((b,bi)=>{
+            targets.forEach((t,ti)=>{
+                if(Math.hypot(b.x-t.x,b.y-t.y)<t.size){
+                    targets.splice(ti,1);
+                    bullets.splice(bi,1);
+                }
+            });
+        });
+        if(targets.length<=0)setTimeout(spawnTargets,600);
+    }
+
+    if(gameState==="endless"){
+        enemies.forEach((e,ei)=>{
+            let ang=Math.atan2(player.y-e.y,player.x-e.x);
+            e.x+=Math.cos(ang)*e.speed;
+            e.y+=Math.sin(ang)*e.speed;
+
+            if(Math.hypot(player.x-e.x,player.y-e.y)<player.size+e.size){
+                player.hp-=1;
+                updateUI();
+                if(player.hp<=0)gameOver();
+            }
+
+            bullets.forEach((b,bi)=>{
+                if(Math.hypot(b.x-e.x,b.y-e.y)<e.size){
+                    e.hp--;
+                    bullets.splice(bi,1);
+                    if(e.hp<=0){
+                        player.ammo += 10;
+                        updateUI();
+                    }
+                }
+            });
+        });
+        enemies=enemies.filter(e=>e.hp>0);
+    }
+
+    ctx.fillStyle="#2b2b2b";
+    ctx.fillRect(0,0,c.width,c.height);
+
+    if(gameState==="train"){
+        ctx.fillStyle="#ff4444";
+        targets.forEach(t=>{
+            ctx.beginPath();ctx.arc(t.x,t.y,t.size,0,Math.PI*2);ctx.fill();
+            ctx.fillStyle="#222";
+            ctx.beginPath();ctx.arc(t.x,t.y,t.size*0.4,0,Math.PI*2);ctx.fill();
+            ctx.fillStyle="#ff4444";
+        });
+    }
+
+    ctx.fillStyle="#e53935";
+    enemies.forEach(e=>{ctx.beginPath();ctx.arc(e.x,e.y,e.size,0,Math.PI*2);ctx.fill();});
+    ctx.fillStyle="#fff";
+    bullets.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.size,0,Math.PI*2);ctx.fill();});
+    ctx.fillStyle="#42a5f5";
+    ctx.beginPath();ctx.arc(player.x,player.y,player.size,0,Math.PI*2);ctx.fill();
+
+    ctx.strokeStyle="#fff";ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(player.x,player.y);
+    ctx.lineTo(player.x+Math.cos(player.angle)*28,player.y+Math.sin(player.angle)*28);
+    ctx.stroke();
+}
+
+loop();
+</script>
+</body>
+</html>

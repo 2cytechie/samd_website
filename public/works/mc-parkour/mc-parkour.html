@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MC超大跑酷 - 画布版</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #222; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: sans-serif; 
+        }
+        #gameContainer { position: relative; }
+        #menuUI {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); 
+            display: flex;
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            z-index: 100;
+        }
+        #menuUI h1 { 
+            color: #fff; 
+            font-size: 46px; 
+            margin-bottom: 50px;
+            letter-spacing: 6px;
+            white-space: nowrap;
+        }
+        .menuBtn {
+            padding: 14px 35px; margin: 8px; font-size: 18px;
+            border: none; border-radius: 6px; cursor: pointer;
+            background: #4CAF50; color: #fff;
+        }
+        .menuBtn:hover { background: #45a049; }
+        #invBar {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            background: #444; padding: 10px; border-radius: 8px;
+            display: none; gap: 8px; z-index: 50;
+        }
+        .invSlot {
+            width: 55px; height: 55px; border: 2px solid #aaa;
+            border-radius: 4px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            color: #fff; font-size: 12px; cursor: pointer;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .invSlot.selected { border-color: #ffd000; box-shadow: 0 0 8px #ffd000; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<div id="gameContainer">
+    <div id="menuUI">
+        <h1>我的世界 超长跑酷大冒险</h1>
+        <button class="menuBtn" onclick="startGame('easy')">简单跑酷</button>
+        <button class="menuBtn" onclick="startGame('normal')">中等跑酷</button>
+        <button class="menuBtn" onclick="startGame('hard')">困难跑酷</button>
+    </div>
+    <div id="invBar"></div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+
+<script>
+const BLOCK_SIZE = 32;
+const GAME_WIDTH = 1200;
+const GAME_HEIGHT = 600;
+const MAP_MAX_WIDTH = 4800;
+
+const BLOCK_TYPES = {
+    grass: { color: '#60A917', name: '草方块' },
+    dirt: { color: '#8B4513', name: '泥土' },
+    stone: { color: '#888888', name: '石头' },
+    sand: { color: '#F4D03F', name: '沙子' },
+    wood: { color: '#A0522D', name: '原木' },
+    leaves: { color: '#228B22', name: '树叶' },
+    brick: { color: '#CD5C5C', name: '红砖' },
+    goldOre: { color: '#FFD700', name: '金矿' },
+    ironOre: { color: '#B0C4DE', name: '铁矿' }
+};
+
+let inventory = {
+    grass: 12, dirt: 12, stone: 10, sand: 8,
+    wood: 8, leaves: 6, brick: 6, goldOre: 5, ironOre: 5
+};
+let selectBlock = 'grass';
+let gameMode = 'easy';
+let isEditMode = false;
+let gameRunning = false;
+let isFlying = false;
+
+let canvas, ctx;
+let player = { x: 80, y: 400, vx: 0, vy: 0, w: 28, h: 28 };
+let blocks = [];
+let flag = { x: 0, y: 0, w: 40, h: 80 };
+let camera = { x: 0, y: 0 };
+let keys = {};
+
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 49 || e.key === '1') {
+        isFlying = !isFlying;
+        e.preventDefault();
+        e.stopPropagation();
+    }
+});
+
+function startGame(mode) {
+    gameMode = mode;
+    isEditMode = (mode === 'edit');
+    document.getElementById('menuUI').style.display = 'none';
+    document.getElementById('invBar').style.display = isEditMode ? 'flex' : 'none';
+    
+    initGame();
+    if (!gameRunning) {
+        gameRunning = true;
+        gameLoop();
+    }
+}
+
+function initGame() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+    
+    player.x = 80;
+    player.y = GAME_HEIGHT - 100;
+    player.vx = 0;
+    player.vy = 0;
+    camera.x = 0;
+    isFlying = false;
+    
+    blocks = [];
+    for (let x = 0; x < MAP_MAX_WIDTH; x += BLOCK_SIZE) {
+        blocks.push({ x: x, y: GAME_HEIGHT - BLOCK_SIZE, w: BLOCK_SIZE, h: BLOCK_SIZE, type: 'grass' });
+    }
+    
+    if (!isEditMode) {
+        generateParkour();
+    }
+    
+    renderInventory();
+}
+
+function generateParkour() {
+    let startX = 250;
+    let yPos = 480;
+    let count = 35, step = 120, width = 130;
+    
+    if (gameMode === 'normal') { count = 30; step = 140; width = 100; }
+    if (gameMode === 'hard') { count = 28; step = 160; width = 70; }
+    
+    for (let i = 0; i < count; i++) {
+        let typeList = Object.keys(BLOCK_TYPES);
+        let ranType = typeList[Math.floor(Math.random() * typeList.length)];
+        blocks.push({ x: startX, y: yPos, w: width, h: BLOCK_SIZE, type: ranType });
+        startX += step;
+        if (gameMode === 'hard') yPos += Math.floor(Math.random() * 60 - 40);
+    }
+    
+    let lastPlatformX = startX - step;
+    let lastPlatformY = yPos;
+    flag.x = lastPlatformX + width / 2 - 20;
+    flag.y = lastPlatformY - 80;
+    
+    blocks.push({ x: lastPlatformX, y: lastPlatformY - BLOCK_SIZE * 2, w: width + BLOCK_SIZE * 2, h: BLOCK_SIZE, type: 'stone' });
+}
+
+window.addEventListener('keydown', function(e) {
+    keys[e.key.toLowerCase()] = true;
+    
+    if (['w', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+    }
+});
+
+window.addEventListener('keyup', function(e) {
+    keys[e.key.toLowerCase()] = false;
+});
+
+canvas.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    if (!isEditMode) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    let clickX = e.clientX - rect.left + camera.x;
+    let clickY = e.clientY - rect.top + camera.y;
+    
+    let bx = Math.floor(clickX / BLOCK_SIZE) * BLOCK_SIZE;
+    let by = Math.floor(clickY / BLOCK_SIZE) * BLOCK_SIZE;
+    
+    if (e.button === 0) {
+        for (let i = blocks.length - 1; i >= 0; i--) {
+            let b = blocks[i];
+            if (bx >= b.x && bx < b.x + b.w && by >= b.y && by < b.y + b.h) {
+                if (b.type) inventory[b.type]++;
+                blocks.splice(i, 1);
+                renderInventory();
+                break;
+            }
+        }
+    } else if (e.button === 2) {
+        if (inventory[selectBlock] > 0) {
+            blocks.push({ x: bx, y: by, w: BLOCK_SIZE, h: BLOCK_SIZE, type: selectBlock });
+            inventory[selectBlock]--;
+            renderInventory();
+        }
+    }
+});
+
+canvas.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+function updatePlayer() {
+    if (isFlying) {
+        if (keys['a'] || keys['arrowleft']) player.vx = -6;
+        else if (keys['d'] || keys['arrowright']) player.vx = 6;
+        else player.vx = 0;
+        
+        if (keys['w'] || keys[' '] || keys['arrowup']) player.vy = -6;
+        else if (keys['s'] || keys['arrowdown']) player.vy = 6;
+        else player.vy = 0;
+        
+        player.x += player.vx;
+        player.y += player.vy;
+    } else {
+        if (keys['a'] || keys['arrowleft']) player.vx = -5;
+        else if (keys['d'] || keys['arrowright']) player.vx = 5;
+        else player.vx = 0;
+        
+        if ((keys['w'] || keys[' '] || keys['arrowup']) && checkOnGround()) {
+            player.vy = -12;
+        }
+        
+        player.vy += 0.5;
+        if (player.vy > 15) player.vy = 15;
+        
+        player.x += player.vx;
+        player.y += player.vy;
+        
+        checkCollisions();
+    }
+    
+    if (player.y > GAME_HEIGHT + 50 || player.x < -100) {
+        resetPlayer();
+    }
+    
+    camera.x = player.x - GAME_WIDTH / 2 + player.w / 2;
+    if (camera.x < 0) camera.x = 0;
+    if (camera.x > MAP_MAX_WIDTH - GAME_WIDTH) camera.x = MAP_MAX_WIDTH - GAME_WIDTH;
+    
+    if (checkFlagCollision()) {
+        alert('恭喜你！成功跑完跑酷地图！');
+        resetPlayer();
+    }
+}
+
+function resetPlayer() {
+    player.x = 80;
+    player.y = GAME_HEIGHT - 100;
+    player.vx = 0;
+    player.vy = 0;
+}
+
+function checkOnGround() {
+    let onGround = false;
+    for (let b of blocks) {
+        if (rectCollision({ x: player.x, y: player.y + 1, w: player.w, h: player.h }, b)) {
+            onGround = true;
+            break;
+        }
+    }
+    return onGround;
+}
+
+function checkCollisions() {
+    for (let b of blocks) {
+        if (rectCollision(player, b)) {
+            resolveCollision(player, b);
+        }
+    }
+}
+
+function rectCollision(a, b) {
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function resolveCollision(player, block) {
+    let overlapLeft = (player.x + player.w) - block.x;
+    let overlapRight = (block.x + block.w) - player.x;
+    let overlapTop = (player.y + player.h) - block.y;
+    let overlapBottom = (block.y + block.h) - player.y;
+    
+    let minOverlapX = Math.min(overlapLeft, overlapRight);
+    let minOverlapY = Math.min(overlapTop, overlapBottom);
+    
+    if (minOverlapX < minOverlapY) {
+        if (overlapLeft < overlapRight) player.x -= overlapLeft;
+        else player.x += overlapRight;
+        player.vx = 0;
+    } else {
+        if (overlapTop < overlapBottom) {
+            player.y -= overlapTop;
+            if (player.vy > 0) player.vy = 0;
+        } else {
+            player.y += overlapBottom;
+            player.vy = 0;
+        }
+    }
+}
+
+function checkFlagCollision() {
+    return rectCollision(player, flag);
+}
+
+function draw() {
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    
+    ctx.save();
+    ctx.translate(-camera.x, 0);
+    
+    for (let b of blocks) {
+        ctx.fillStyle = BLOCK_TYPES[b.type].color;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+    }
+    
+    if (!isEditMode) {
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(flag.x, flag.y, flag.w, flag.h);
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(flag.x + flag.w - 10, flag.y, 10, flag.h);
+    }
+    
+    if (isFlying) {
+        ctx.fillStyle = '#FF69B4';
+    } else {
+        ctx.fillStyle = '#4169E1';
+    }
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.fillStyle = '#FFDAB9';
+    ctx.fillRect(player.x + 4, player.y - 12, 20, 16);
+    
+    ctx.restore();
+}
+
+function gameLoop() {
+    updatePlayer();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+
+function renderInventory() {
+    let bar = document.getElementById('invBar');
+    bar.innerHTML = '';
+    Object.keys(BLOCK_TYPES).forEach(function(type) {
+        let info = BLOCK_TYPES[type];
+        let slot = document.createElement('div');
+        slot.className = 'invSlot' + (type === selectBlock ? ' selected' : '');
+        slot.style.background = info.color;
+        slot.innerHTML = '<div>' + info.name + '</div><div>×' + (inventory[type] || 0) + '</div>';
+        slot.onclick = function() {
+            selectBlock = type;
+            renderInventory();
+        };
+        bar.appendChild(slot);
+    });
+}
+</script>
+</body>
+</html>
