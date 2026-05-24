@@ -54,4 +54,13 @@ export const worksData: Work[] = [
     workUrl: '/works/mc-parkour/mc-parkour.html',
     tags: ['Phaser3', 'JavaScript', '游戏开发', '跑酷游戏', '地图编辑器'],
   },
+  {
+    id: '6',
+    title: '坦克大战',
+    description: '经典FC坦克大战游戏！具有多种地形（砖墙、钢铁、水域、草地），敌人AI系统，关卡系统！\n使用方向键移动，空格发射子弹，消灭所有敌人，保护你的基地！',
+    thumbnail: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tank%20battle%20game%20thumbnail%2C%20classic%208-bit%20style%2C%20green%20player%20tank%2C%20red%20enemy%20tank%2C%20brick%20walls%2C%20dark%20background%2C%20pixel%20art%2C%20clean%20design&image_size=landscape_16_9',
+    detailImage: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tank%20battle%20game%20thumbnail%2C%20classic%208-bit%20style%2C%20green%20player%20tank%2C%20red%20enemy%20tank%2C%20brick%20walls%2C%20dark%20background%2C%20pixel%20art%2C%20clean%20design&image_size=landscape_16_9',
+    workUrl: '/works/tank-battle/tank-battle.html',
+    tags: ['Canvas', 'JavaScript', '游戏开发', '经典游戏', '坦克'],
+  },
 ];
