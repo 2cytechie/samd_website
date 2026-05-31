@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>MC超大跑酷 - 优化版</title>
+    <style>
+        body { 
+            margin: 0; 
+            background: #222; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden;
+        }
+        #gameContainer { 
+            position: relative; 
+            border: 4px solid #444;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        #gameCanvas { 
+            display: block; 
+            background: #87CEEB;
+        }
+        
+        .menuUI, .pauseUI, .winUI {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: rgba(0,0,0,0.9); 
+            display: flex;
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .menuUI h1 { 
+            color: #4CAF50; 
+            font-size: 48px; 
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            letter-spacing: 4px;
+        }
+        
+        .menuUI h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .levelSelect {
+            margin-bottom: 30px;
+        }
+        
+        .levelGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .levelBtn {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #333;
+            color: #fff;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        
+        .levelBtn:hover {
+            background: #4CAF50;
+            transform: scale(1.05);
+        }
+        
+        .levelBtn.completed {
+            background: #2E7D32;
+        }
+        
+        .levelBtn.completed::before {
+            content: '✓ ';
+            color: #FFD700;
+        }
+        
+        .menuBtn {
+            padding: 14px 40px; 
+            margin: 10px; 
+            font-size: 18px;
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: #fff;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .menuBtn:hover { 
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+        
+        .hudLeft, .hudCenter, .hudRight {
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .hudCenter {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .pauseUI h2, .winUI h2 {
+            color: #FFD700;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .winUI p {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        
+        @media (max-width: 1200px) {
+            #gameCanvas {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script type="module" src="js/game.js"></script>
+</body>
+</html>

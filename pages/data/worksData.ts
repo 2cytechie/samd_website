@@ -72,4 +72,13 @@ export const worksData: Work[] = [
     workUrl: '/works/tank-battle/tank-battle.html',
     tags: ['Canvas', 'JavaScript', '游戏开发', '经典游戏', '坦克'],
   },
+  {
+    id: '8',
+    title: 'Minecraft Web Client',
+    description: '一个在浏览器中运行的 Minecraft 克隆客户端！支持连接到 Java 版服务器（1.8-1.21.5），具有完整的资源包支持和触屏操作。\n**参考项目**: https://github.com/zardoy/minecraft-web-client\n\n功能特性：单人模式、多人模式、资源包支持、触屏/控制器操作、完整的游戏界面。',
+    thumbnail: '/works/minecraft-web-client/thumbnail.png',
+    detailImage: '/works/minecraft-web-client/thumbnail.png',
+    workUrl: '/works/minecraft-web-client/minecraft-web-client.html',
+    tags: ['TypeScript', 'React', 'Three.js', '游戏开发', 'Minecraft'],
+  },
 ];
