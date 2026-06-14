@@ -81,4 +81,13 @@ export const worksData: Work[] = [
     workUrl: '/works/minecraft-web-client/minecraft-web-client.html',
     tags: ['TypeScript', 'React', 'Three.js', '游戏开发', 'Minecraft'],
   },
+  {
+    id: '9',
+    title: '密码攻防演示工具',
+    description: '密码安全科普学习工具！包含多种密码学演示功能：\n\n🔐 **AI出题你来破** - AI随机生成密码，通过A/B提示推理破解\n🔑 **你设密码AI破** - 设置密码让AI尝试破解，体验暴力破解过程\n🔒 **加密解密** - 支持凯撒密码、栅栏密码、维吉尼亚密码、Base64、MD5\n💥 **暴力破解** - 展示暴力破解和字典破解的完整过程\n\n⚠️ 本工具仅用于密码安全科普学习，请勿用于非法用途！',
+    thumbnail: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=password%20security%20tool%20thumbnail%2C%20dark%20theme%2C%20lock%20icon%2C%20code%20binary%20background%2C%20cyber%20style%2C%20clean%20design%2C%20professional&image_size=landscape_16_9',
+    detailImage: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=password%20security%20tool%20thumbnail%2C%20dark%20theme%2C%20lock%20icon%2C%20code%20binary%20background%2C%20cyber%20style%2C%20clean%20design%2C%20professional&image_size=landscape_16_9',
+    workUrl: '/works/password-tool/password-tool.html',
+    tags: ['HTML', 'JavaScript', '密码学', '安全教育', '工具'],
+  },
 ];
