@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜密码游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        /* 模式选择 */
+        .mode-section {
+            margin-bottom: 30px;
+        }
+
+        .mode-section h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid transparent;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .mode-btn.user-mode { border-color: #4ade80; }
+        .mode-btn.user-mode:hover { background: rgba(74, 222, 128, 0.2); }
+
+        .mode-btn.ai-mode { border-color: #fbbf24; }
+        .mode-btn.ai-mode:hover { background: rgba(251, 191, 36, 0.2); }
+
+        /* 难度选择 */
+        .difficulty-section {
+            margin-bottom: 30px;
+        }
+
+        .difficulty-section h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .diff-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid transparent;
+        }
+
+        .diff-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .diff-btn.selected {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .diff-btn.easy { border-color: #4ade80; }
+        .diff-btn.easy.selected { background: rgba(74, 222, 128, 0.2); border-color: #4ade80; }
+
+        .diff-btn.medium { border-color: #fbbf24; }
+        .diff-btn.medium.selected { background: rgba(251, 191, 36, 0.2); border-color: #fbbf24; }
+
+        .diff-btn.hard { border-color: #f87171; }
+        .diff-btn.hard.selected { background: rgba(248, 113, 113, 0.2); border-color: #f87171; }
+
+        .diff-info {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
+        /* 线索区域 */
+        .hints-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .hints-section h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hint {
+            color: #fff;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hint:last-child {
+            border-bottom: none;
+        }
+
+        /* 用户输入密码区域 */
+        .user-password-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .user-password-section h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .user-password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            letter-spacing: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .user-password-input:focus {
+            border-color: #4ade80;
+        }
+
+        /* 游戏区域 */
+        .game-section {
+            display: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+
+        .stat-value {
+            color: #00d4ff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            letter-spacing: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+            text-transform: uppercase;
+        }
+
+        .password-input:focus {
+            border-color: #00d4ff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* AI猜测区域 */
+        .ai-guess-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .ai-guess-section h3 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+        }
+
+        .ai-guess-display {
+            font-size: 2em;
+            text-align: center;
+            letter-spacing: 10px;
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .ai-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .ai-stat {
+            text-align: center;
+        }
+
+        .ai-stat-value {
+            font-size: 2em;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .ai-stat-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .feedback-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .feedback-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-btn.correct {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+
+        .feedback-btn.correct:hover {
+            background: rgba(74, 222, 128, 0.4);
+        }
+
+        .feedback-btn.wrong-position {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+
+        .feedback-btn.wrong-position:hover {
+            background: rgba(251, 191, 36, 0.4);
+        }
+
+        .feedback-btn.wrong {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            border: 1px solid #f87171;
+        }
+
+        .feedback-btn.wrong:hover {
+            background: rgba(248, 113, 113, 0.4);
+        }
+
+        .feedback-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .char-cell {
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .char-cell:hover {
+            border-color: #00d4ff;
+        }
+
+        .char-cell.selected-correct {
+            background: rgba(74, 222, 128, 0.3);
+            border-color: #4ade80;
+        }
+
+        .char-cell.selected-wrong-position {
+            background: rgba(251, 191, 36, 0.3);
+            border-color: #fbbf24;
+        }
+
+        .char-cell.selected-wrong {
+            background: rgba(248, 113, 113, 0.3);
+            border-color: #f87171;
+        }
+
+        .confirm-feedback-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .confirm-feedback-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        /* 反馈区域 */
+        .feedback-section {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .feedback-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+        }
+
+        .feedback-detail {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .char-feedback {
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .char-feedback.correct {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+
+        .char-feedback.wrong-position {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid #fbbf24;
+        }
+
+        .char-feedback.wrong {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            border: 1px solid #f87171;
+        }
+
+        /* 开始按钮 */
+        .start-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .start-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* 结果弹窗 */
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .result-title.win { color: #4ade80; }
+        .result-title.lose { color: #f87171; }
+        .result-title.ai-win { color: #fbbf24; }
+
+        .result-password {
+            color: #00d4ff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .result-stats {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+        }
+
+        .play-again-btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 猜密码游戏</h1>
+
+        <!-- 模式选择 -->
+        <div class="mode-section" id="modeSection">
+            <h2>选择游戏模式</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn user-mode" onclick="selectMode('user')">👤 用户猜密码</button>
+                <button class="mode-btn ai-mode" onclick="selectMode('ai')">🤖 AI猜密码</button>
+            </div>
+        </div>
+
+        <!-- 难度选择 -->
+        <div class="difficulty-section" id="difficultySection">
+            <h2>选择难度</h2>
+            <div class="difficulty-buttons">
+                <button class="diff-btn easy" onclick="selectDifficulty('easy')">
+                    简单
+                    <div class="diff-info">4位数字 · 10次机会</div>
+                </button>
+                <button class="diff-btn medium" onclick="selectDifficulty('medium')">
+                    中等
+                    <div class="diff-info">6位字母数字 · 8次机会</div>
+                </button>
+                <button class="diff-btn hard" onclick="selectDifficulty('hard')">
+                    困难
+                    <div class="diff-info">8位混合 · 6次机会</div>
+                </button>
+            </div>
+            <button class="start-btn" id="startBtn" onclick="startGame()" disabled>开始游戏</button>
+        </div>
+
+        <!-- 用户输入密码区域（AI模式） -->
+        <div class="user-password-section" id="userPasswordSection">
+            <h3>请输入你想让AI猜的密码</h3>
+            <input type="text" class="user-password-input" id="userPasswordInput" placeholder="输入密码">
+            <button class="start-btn" onclick="startAIGame()" id="aiStartBtn">让AI开始猜</button>
+        </div>
+
+        <!-- 线索区域 -->
+        <div class="hints-section" id="hintsSection">
+            <h3>📋 线索提示</h3>
+            <div id="hintsList"></div>
+        </div>
+
+        <!-- 用户猜密码游戏区域 -->
+        <div class="game-section" id="gameSection">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">难度</div>
+                    <div class="stat-value" id="diffDisplay">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">剩余机会</div>
+                    <div class="stat-value" id="attemptsDisplay">-</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">已猜次数</div>
+                    <div class="stat-value" id="guessCountDisplay">0</div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <input type="text" class="password-input" id="guessInput" placeholder="输入密码" autocomplete="off">
+                <button class="submit-btn" id="submitBtn" onclick="submitGuess()">确认猜测</button>
+            </div>
+
+            <div class="feedback-section" id="feedbackSection"></div>
+        </div>
+
+        <!-- AI猜密码游戏区域 -->
+        <div class="ai-guess-section" id="aiGuessSection">
+            <h3>🤖 AI正在猜测你的密码</h3>
+            
+            <div class="ai-stats">
+                <div class="ai-stat">
+                    <div class="ai-stat-value" id="aiGuessCount">0</div>
+                    <div class="ai-stat-label">猜测次数</div>
+                </div>
+                <div class="ai-stat">
+                    <div class="ai-stat-value" id="aiRemaining">0</div>
+                    <div class="ai-stat-label">剩余机会</div>
+                </div>
+            </div>
+
+            <div class="ai-guess-display" id="aiCurrentGuess">--------</div>
+
+            <div id="feedbackGrid" class="char-grid"></div>
+            <button class="confirm-feedback-btn" onclick="confirmAIFeedback()">确认反馈</button>
+        </div>
+    </div>
+
+    <!-- 结果弹窗 -->
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-box">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-title" id="resultTitle">恭喜你！</div>
+            <div class="result-password" id="resultPassword"></div>
+            <div class="result-stats" id="resultStats"></div>
+            <button class="play-again-btn" onclick="resetGame()">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            password: '',
+            difficulty: '',
+            gameMode: '', // 'user' or 'ai'
+            maxAttempts: 0,
+            attempts: 0,
+            passwordLength: 0,
+            gameOver: false
+        };
+
+        // AI状态
+        let aiState = {
+            config: null,
+            currentGuess: '',
+            feedbackHistory: [],
+            selectedFeedback: [],
+            constraints: {
+                correctPositions: {},
+                mustContain: [],
+                mustNotContain: []
+            }
+        };
+
+        // 难度配置
+        const difficultyConfig = {
+            easy: {
+                name: '简单',
+                length: 4,
+                maxAttempts: 10,
+                chars: '0123456789',
+                type: '数字'
+            },
+            medium: {
+                name: '中等',
+                length: 6,
+                maxAttempts: 8,
+                chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+                type: '大写字母和数字'
+            },
+            hard: {
+                name: '困难',
+                length: 8,
+                maxAttempts: 6,
+                chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%',
+                type: '字母、数字和特殊符号'
+            }
+        };
+
+        let selectedDifficulty = null;
+        let selectedMode = null;
+
+        // 选择模式
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.style.borderColor = '';
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+            
+            const btn = document.querySelector(`.mode-btn.${mode === 'user' ? 'user-mode' : 'ai-mode'}`);
+            if (mode === 'user') {
+                btn.style.borderColor = '#4ade80';
+                btn.style.background = 'rgba(74, 222, 128, 0.2)';
+            } else {
+                btn.style.borderColor = '#fbbf24';
+                btn.style.background = 'rgba(251, 191, 36, 0.2)';
+            }
+
+            if (selectedDifficulty) {
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        // 选择难度
+        function selectDifficulty(diff) {
+            selectedDifficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`.diff-btn.${diff}`).classList.add('selected');
+            
+            if (selectedMode) {
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        // 生成随机密码
+        function generatePassword(config) {
+            let password = '';
+            for (let i = 0; i < config.length; i++) {
+                password += config.chars.charAt(Math.floor(Math.random() * config.chars.length));
+            }
+            return password;
+        }
+
+        // 生成线索
+        function generateHints(password, difficulty) {
+            const hints = [];
+            const config = difficultyConfig[difficulty];
+
+            if (difficulty === 'easy') {
+                hints.push(`密码是 ${password.length} 位数字`);
+                hints.push(`第一位数字是 ${password[0]}`);
+                let sum = 0;
+                for (let c of password) sum += parseInt(c);
+                hints.push(`所有数字之和为 ${sum}`);
+            } else if (difficulty === 'medium') {
+                hints.push(`密码是 ${password.length} 位大写字母和数字的组合`);
+                let letters = 0, numbers = 0;
+                for (let c of password) {
+                    if (/[A-Z]/.test(c)) letters++;
+                    else numbers++;
+                }
+                hints.push(`密码中有 ${letters} 个字母，${numbers} 个数字`);
+                hints.push(`密码的第一位是 ${password[0]}`);
+                const mid = Math.floor(password.length / 2);
+                hints.push(`密码的第${mid + 1}位是 ${password[mid]}`);
+            } else {
+                hints.push(`密码是 ${password.length} 位混合字符（大写字母、数字、特殊符号）`);
+                let letters = 0, numbers = 0, special = 0;
+                for (let c of password) {
+                    if (/[A-Z]/.test(c)) letters++;
+                    else if (/[0-9]/.test(c)) numbers++;
+                    else special++;
+                }
+                hints.push(`密码中有 ${letters} 个字母，${numbers} 个数字，${special} 个特殊字符`);
+                for (let i = 0; i < password.length; i++) {
+                    if (!/[A-Z0-9]/.test(password[i])) {
+                        hints.push(`第${i + 1}位是特殊字符`);
+                        break;
+                    }
+                }
+                hints.push(`密码的第一位是 ${password[0]}`);
+            }
+
+            return hints;
+        }
+
+        // 显示线索
+        function displayHints(hints) {
+            const hintsList = document.getElementById('hintsList');
+            hintsList.innerHTML = hints.map(hint => `<div class="hint">💡 ${hint}</div>`).join('');
+            document.getElementById('hintsSection').style.display = 'block';
+        }
+
+        // 开始游戏
+        function startGame() {
+            if (!selectedMode || !selectedDifficulty) return;
+
+            const config = difficultyConfig[selectedDifficulty];
+            gameState.password = selectedMode === 'user' ? generatePassword(config) : '';
+            gameState.difficulty = selectedDifficulty;
+            gameState.gameMode = selectedMode;
+            gameState.maxAttempts = config.maxAttempts;
+            gameState.attempts = 0;
+            gameState.passwordLength = config.length;
+            gameState.gameOver = false;
+
+            document.getElementById('modeSection').style.display = 'none';
+            document.getElementById('difficultySection').style.display = 'none';
+
+            if (selectedMode === 'user') {
+                // 用户猜密码模式
+                const hints = generateHints(gameState.password, selectedDifficulty);
+                displayHints(hints);
+
+                document.getElementById('gameSection').style.display = 'block';
+                document.getElementById('diffDisplay').textContent = config.name;
+                document.getElementById('attemptsDisplay').textContent = config.maxAttempts;
+                document.getElementById('guessCountDisplay').textContent = '0';
+
+                const input = document.getElementById('guessInput');
+                input.maxLength = config.length;
+                input.placeholder = `输入${config.length}位密码`;
+                input.focus();
+                document.getElementById('feedbackSection').innerHTML = '';
+
+                console.log('Password:', gameState.password);
+            } else {
+                // AI猜密码模式
+                document.getElementById('userPasswordSection').style.display = 'block';
+                document.getElementById('userPasswordInput').maxLength = config.length;
+                document.getElementById('userPasswordInput').placeholder = `输入${config.length}位密码（${config.type}）`;
+                document.getElementById('userPasswordInput').focus();
+            }
+        }
+
+        // 开始AI游戏
+        function startAIGame() {
+            const userPassword = document.getElementById('userPasswordInput').value.toUpperCase().trim();
+            const config = difficultyConfig[selectedDifficulty];
+
+            if (userPassword.length !== config.length) {
+                alert(`请输入 ${config.length} 位密码！`);
+                return;
+            }
+
+            gameState.password = userPassword;
+            document.getElementById('userPasswordSection').style.display = 'none';
+
+            // 初始化AI状态
+            aiState.config = config;
+            aiState.feedbackHistory = [];
+            aiState.constraints = {
+                correctPositions: {},
+                mustContain: [],
+                mustNotContain: []
+            };
+
+            // 生成第一个智能猜测
+            aiState.currentGuess = generateSmartFirstGuess();
+
+            // 显示AI猜测区域
+            document.getElementById('aiGuessSection').style.display = 'block';
+            document.getElementById('aiGuessCount').textContent = '1';
+            document.getElementById('aiRemaining').textContent = config.maxAttempts;
+            document.getElementById('aiCurrentGuess').textContent = aiState.currentGuess;
+
+            gameState.attempts = 1;
+
+            // 创建反馈网格
+            createFeedbackGrid();
+        }
+
+        // 生成智能的第一个猜测
+        function generateSmartFirstGuess() {
+            const config = aiState.config;
+            const chars = config.chars;
+            const length = config.length;
+
+            // 随机生成混合密码
+            let guess = '';
+            for (let i = 0; i < length; i++) {
+                guess += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return guess;
+        }
+
+        // 智能生成下一个猜测
+        function generateNextGuess() {
+            const config = aiState.config;
+            const length = config.length;
+            const chars = config.chars;
+            
+            // 从反馈历史中提取约束
+            const { correctPositions, mustContain, mustNotContain } = aiState.constraints;
+            
+            let attempts = 0;
+            const maxAttempts = 1000;
+            
+            while (attempts < maxAttempts) {
+                attempts++;
+                let guess = '';
+                
+                // 生成随机密码
+                for (let i = 0; i < length; i++) {
+                    if (correctPositions[i]) {
+                        // 固定位置的字符
+                        guess += correctPositions[i];
+                    } else {
+                        // 随机选择
+                        guess += chars[Math.floor(Math.random() * chars.length)];
+                    }
+                }
+                
+                // 检查是否满足约束
+                if (satisfiesConstraints(guess, mustContain, mustNotContain)) {
+                    return guess;
+                }
+            }
+            
+            // 如果找不到满足约束的，随机生成
+            let guess = '';
+            for (let i = 0; i < length; i++) {
+                if (correctPositions[i]) {
+                    guess += correctPositions[i];
+                } else {
+                    guess += chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+            return guess;
+        }
+
+        // 检查是否满足约束
+        function satisfiesConstraints(guess, mustContain, mustNotContain) {
+            for (const char of mustContain) {
+                if (!guess.includes(char)) return false;
+            }
+            for (const char of mustNotContain) {
+                if (guess.includes(char)) return false;
+            }
+            return true;
+        }
+
+        // 创建反馈网格
+        function createFeedbackGrid() {
+            const grid = document.getElementById('feedbackGrid');
+            grid.innerHTML = '';
+            aiState.selectedFeedback = [];
+
+            for (let i = 0; i < aiState.currentGuess.length; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.textContent = aiState.currentGuess[i];
+                cell.onclick = function() { toggleFeedback(cell, i); };
+                grid.appendChild(cell);
+                aiState.selectedFeedback.push('');
+            }
+        }
+
+        // 切换反馈状态
+        function toggleFeedback(cell, index) {
+            const states = ['', 'correct', 'wrong-position', 'wrong'];
+            let currentIndex = states.indexOf(aiState.selectedFeedback[index]);
+            currentIndex = (currentIndex + 1) % states.length;
+            aiState.selectedFeedback[index] = states[currentIndex];
+
+            cell.className = 'char-cell';
+            if (states[currentIndex]) {
+                cell.classList.add(`selected-${states[currentIndex]}`);
+            }
+        }
+
+        // 确认AI反馈
+        function confirmAIFeedback() {
+            // 检查是否所有字符都有反馈
+            if (aiState.selectedFeedback.some(f => f === '')) {
+                alert('请为每个字符选择反馈！');
+                return;
+            }
+
+            // 记录反馈历史
+            aiState.feedbackHistory.push({
+                guess: aiState.currentGuess,
+                feedback: [...aiState.selectedFeedback]
+            });
+
+            // 更新约束条件
+            updateConstraints();
+
+            // 检查AI是否猜对了
+            if (aiState.selectedFeedback.every(f => f === 'correct')) {
+                showAIResult(true);
+                return;
+            }
+
+            // 检查是否用完机会
+            gameState.attempts++;
+            const remaining = gameState.maxAttempts - gameState.attempts;
+
+            if (gameState.attempts >= gameState.maxAttempts) {
+                showAIResult(false);
+                return;
+            }
+
+            // 生成下一个猜测
+            aiState.currentGuess = generateNextGuess();
+
+            // 更新显示
+            document.getElementById('aiGuessCount').textContent = gameState.attempts + 1;
+            document.getElementById('aiRemaining').textContent = remaining;
+            document.getElementById('aiCurrentGuess').textContent = aiState.currentGuess;
+
+            // 创建新的反馈网格
+            createFeedbackGrid();
+        }
+
+        // 更新约束条件
+        function updateConstraints() {
+            const { correctPositions, mustContain, mustNotContain } = aiState.constraints;
+            const guess = aiState.currentGuess;
+            const feedback = aiState.selectedFeedback;
+
+            // 处理正确位置的字符
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === 'correct') {
+                    correctPositions[i] = guess[i];
+                }
+            }
+
+            // 处理不在正确位置的字符
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === 'wrong-position') {
+                    if (!mustContain.includes(guess[i])) {
+                        mustContain.push(guess[i]);
+                    }
+                }
+            }
+
+            // 处理完全错误的字符
+            for (let i = 0; i < guess.length; i++) {
+                if (feedback[i] === 'wrong') {
+                    if (!mustNotContain.includes(guess[i])) {
+                        mustNotContain.push(guess[i]);
+                    }
+                }
+            }
+        }
+
+        // 智能选择最佳猜测 - 使用约束满足
+        function generateNextGuess() {
+            const config = aiState.config;
+            const length = config.length;
+            const chars = config.chars;
+            
+            // 从反馈历史中提取约束
+            const { correctPositions, mustContain, mustNotContain } = aiState.constraints;
+            
+            let attempts = 0;
+            const maxAttempts = 1000;
+            
+            while (attempts < maxAttempts) {
+                attempts++;
+                let guess = '';
+                
+                // 生成随机密码
+                for (let i = 0; i < length; i++) {
+                    if (correctPositions[i]) {
+                        // 固定位置的字符
+                        guess += correctPositions[i];
+                    } else {
+                        // 随机选择
+                        guess += chars[Math.floor(Math.random() * chars.length)];
+                    }
+                }
+                
+                // 检查是否满足约束
+                let valid = true;
+                
+                // 检查必须包含的字符
+                for (const char of mustContain) {
+                    if (!guess.includes(char)) {
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (!valid) continue;
+                
+                // 检查不能包含的字符
+                for (const char of mustNotContain) {
+                    if (guess.includes(char)) {
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (valid) {
+                    return guess;
+                }
+            }
+            
+            // 如果找不到满足约束的，随机生成
+            let guess = '';
+            for (let i = 0; i < length; i++) {
+                if (correctPositions[i]) {
+                    guess += correctPositions[i];
+                } else {
+                    guess += chars[Math.floor(Math.random() * chars.length)];
+                }
+            }
+            return guess;
+        }
+
+        // 提交用户猜测
+        function submitGuess() {
+            if (gameState.gameOver) return;
+
+            const input = document.getElementById('guessInput');
+            const guess = input.value.toUpperCase().trim();
+
+            if (guess.length !== gameState.passwordLength) {
+                alert(`请输入 ${gameState.passwordLength} 位密码！`);
+                return;
+            }
+
+            gameState.attempts++;
+            const remaining = gameState.maxAttempts - gameState.attempts;
+
+            document.getElementById('attemptsDisplay').textContent = remaining;
+            document.getElementById('guessCountDisplay').textContent = gameState.attempts;
+
+            if (guess === gameState.password) {
+                showResult(true);
+                return;
+            }
+
+            addFeedback(guess);
+
+            if (gameState.attempts >= gameState.maxAttempts) {
+                showResult(false);
+                return;
+            }
+
+            input.value = '';
+            input.focus();
+        }
+
+        // 添加用户反馈
+        function addFeedback(guess) {
+            const feedbackSection = document.getElementById('feedbackSection');
+            const feedbackItem = document.createElement('div');
+            feedbackItem.className = 'feedback-item';
+
+            let feedbackHTML = `
+                <div class="feedback-header">
+                    <span>第 ${gameState.attempts} 次猜测</span>
+                    <span>剩余 ${gameState.maxAttempts - gameState.attempts} 次</span>
+                </div>
+                <div class="feedback-detail">
+            `;
+
+            for (let i = 0; i < guess.length; i++) {
+                const g = guess[i];
+                const p = gameState.password[i];
+
+                if (g === p) {
+                    feedbackHTML += `<span class="char-feedback correct">${g} ✓</span>`;
+                } else if (gameState.password.includes(g)) {
+                    feedbackHTML += `<span class="char-feedback wrong-position">${g} ?</span>`;
+                } else {
+                    feedbackHTML += `<span class="char-feedback wrong">${g} ✗</span>`;
+                }
+            }
+
+            feedbackHTML += '</div>';
+            feedbackItem.innerHTML = feedbackHTML;
+            feedbackSection.insertBefore(feedbackItem, feedbackSection.firstChild);
+        }
+
+        // 显示用户模式结果
+        function showResult(won) {
+            gameState.gameOver = true;
+
+            const overlay = document.getElementById('resultOverlay');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const password = document.getElementById('resultPassword');
+            const stats = document.getElementById('resultStats');
+
+            if (won) {
+                icon.textContent = '🎉';
+                title.textContent = '恭喜你！';
+                title.className = 'result-title win';
+                password.textContent = `密码: ${gameState.password}`;
+                stats.textContent = `你用了 ${gameState.attempts} 次机会猜对了密码！`;
+            } else {
+                icon.textContent = '😢';
+                title.textContent = '游戏结束';
+                title.className = 'result-title lose';
+                password.textContent = `密码: ${gameState.password}`;
+                stats.textContent = `很遗憾，你没有猜出密码。`;
+            }
+
+            overlay.style.display = 'flex';
+        }
+
+        // 显示AI模式结果
+        function showAIResult(won) {
+            const overlay = document.getElementById('resultOverlay');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const password = document.getElementById('resultPassword');
+            const stats = document.getElementById('resultStats');
+
+            if (won) {
+                icon.textContent = '🤖';
+                title.textContent = 'AI猜对了！';
+                title.className = 'result-title ai-win';
+                password.textContent = `密码: ${gameState.password}`;
+                stats.textContent = `AI用了 ${gameState.attempts} 次机会猜出了你的密码！`;
+            } else {
+                icon.textContent = '🎉';
+                title.textContent = '恭喜你！';
+                title.className = 'result-title win';
+                password.textContent = `密码: ${gameState.password}`;
+                stats.textContent = `AI没有猜出你的密码，你赢了！`;
+            }
+
+            overlay.style.display = 'flex';
+        }
+
+        // 重置游戏
+        function resetGame() {
+            document.getElementById('resultOverlay').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('aiGuessSection').style.display = 'none';
+            document.getElementById('hintsSection').style.display = 'none';
+            document.getElementById('userPasswordSection').style.display = 'none';
+            document.getElementById('difficultySection').style.display = 'block';
+            document.getElementById('modeSection').style.display = 'block';
+            document.getElementById('feedbackSection').innerHTML = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('userPasswordInput').value = '';
+
+            selectedDifficulty = null;
+            selectedMode = null;
+            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.style.borderColor = '';
+                btn.style.background = 'rgba(255, 255, 255, 0.1)';
+            });
+            document.getElementById('startBtn').disabled = true;
+        }
+
+        // 键盘事件
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitGuess();
+            }
+        });
+
+        document.getElementById('userPasswordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startAIGame();
+            }
+        });
+    </script>
+</body>
+</html>
